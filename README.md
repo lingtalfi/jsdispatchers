@@ -16,7 +16,7 @@ Dispatcher with stopPropagation and positioning
 This dispatcher provides stop propagation mechanism and positioning of events.
 It's 37 lines of code including comments and host object's wrapping.
 
-The source is here: https://github.com/lingtalfi/jsdispatcher/blob/master/dispatcher_propoagation_position.js
+The source is here: https://github.com/lingtalfi/jsdispatchers/blob/master/dispatcher_propoagation_position.js
 
 Note: it uses ECMAscript 6.
 
