@@ -6,16 +6,32 @@ window.myObject = function () {
     this.listeners = {};
 };
 myObject.prototype = {
-    on: function (eventId, fn, position = 0) {
-        if (false === (eventId in this.listeners)) {
-            this.listeners[eventId] = [];
+    on: function (eventName, fn, position = 0) {
+        if (false === (eventName in this.listeners)) {
+            this.listeners[eventName] = [];
         }
 
-        if (false === (position in this.listeners[eventId])) {
-            this.listeners[eventId][position] = [];
+        if (false === (position in this.listeners[eventName])) {
+            this.listeners[eventName][position] = [];
         }
-        this.listeners[eventId][position].push(fn);
+        this.listeners[eventName][position].push(fn);
         return this;
+    },
+    off: function (eventName, position, fn = '') {
+        if (eventName in this.listeners) {
+            if (position in this.listeners[eventName]) {
+                if ('' === fn) {
+                    this.listeners[eventName].splice(position, 1);
+                }
+                else {
+                    for (var i in this.listeners[eventName][position]) {
+                        if (fn === this.listeners[eventName][position][i]) {
+                            this.listeners[eventName][position].splice(i, 1);
+                        }
+                    }
+                }
+            }
+        }
     },
     trigger: function (eventName, ...args) {
         if (eventName in this.listeners) {

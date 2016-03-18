@@ -13,6 +13,15 @@ myObject.prototype = {
         this.listeners[eventName].push(fn);
         return this;
     },
+    off: function (eventName, fn) {
+        for (var i in this.listeners) {
+            for (var j in this.listeners[i]) {
+                if (this.listeners[i][j] === fn) {
+                    this.listeners[i].splice(j, 1);
+                }
+            }
+        }
+    },
     trigger: function (eventName, ...args) {
         if (eventName in this.listeners) {
             for (var i in this.listeners[eventName]) {

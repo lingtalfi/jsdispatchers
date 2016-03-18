@@ -37,33 +37,53 @@ The source and example is below:
     };
     
     myObject.prototype = {
-        on: function (eventName, fn) {
-            if (false === (eventName in this.listeners)) {
-                this.listeners[eventName] = [];
-            }
-            this.listeners[eventName].push(fn);
-            return this;
-        },
-        trigger: function (eventName, ...args) {
-            if (eventName in this.listeners) {
-                for (var i in this.listeners[eventName]) {
-                    this.listeners[eventName][i].call(this, ...args);
+    on: function (eventName, fn) {
+        if (false === (eventName in this.listeners)) {
+            this.listeners[eventName] = [];
+        }
+        this.listeners[eventName].push(fn);
+        return this;
+    },
+    off: function (eventName, fn) {
+        for (var i in this.listeners) {
+            for (var j in this.listeners[i]) {
+                if (this.listeners[i][j] === fn) {
+                    this.listeners[i].splice(j, 1);
                 }
             }
-        },
+        }
+    },
+    trigger: function (eventName, ...args) {
+        if (eventName in this.listeners) {
+            for (var i in this.listeners[eventName]) {
+                this.listeners[eventName][i].call(this, ...args);
+            }
+        }
+    },
     };
     
     
-    var o = new myObject();
-    o.on('myEvent', function(firstParam){
-        console.log("doing something with " + firstParam);
-    });
-    o.on('myEvent', function(firstParam){
-        console.log("doing something else with " + firstParam);
-    });
-    o.on('myEvent2', function(){
-        console.log("Kamehameha!");
-    });
+        var o = new window.myObject();
+        
+        
+        var fn2 = function(firstParam){
+            console.log("doing something else with " + firstParam);
+        };
+        
+        o.on('myEvent', function(firstParam){
+            console.log("doing something with " + firstParam);
+        });
+        o.on('myEvent', fn2);
+        o.on('myEvent2', function(){
+            console.log("Kamehameha!");
+        });
+    
+        o.trigger('myEvent', 42);
+        o.trigger('myEvent2');    
+        
+        console.log("removing function 2 listener");
+        o.off('myEvent', fn2);
+        o.trigger('myEvent', 42);
     
     
     
@@ -101,9 +121,8 @@ Note: it uses ECMAscript 6.
 <html>
 <head>
     <meta charset="utf-8"/>
-    <script src="dispatcher_propoagation_position.js"></script>
-    <title>Event dispatcher with position and stop propagation, example of integration within an exisiting
-        object</title>
+    <script src="dispatcher_propagation_position.js"></script>
+    <title>Event dispatcher with position and stop propagation</title>
 </head>
 
 <body>
@@ -111,19 +130,34 @@ Note: it uses ECMAscript 6.
 
 
     var o = new myObject();
+    
+    
+    var fn = function (eventName, number) {
+        console.log("listener1b");
+    };
+    
     o.on("eventA", function (eventName, number) {
-        console.log("listener1 for " + eventName + ", number is " + number);
+        console.log("listener1a");
     }, 1);
+    o.on("eventA", fn, 1);
+    
     o.on("eventA", function (eventName, number) {
-        console.log("listener3 for " + eventName + ", is never executed");
+        console.log("listener3");
     }, 3);
     o.on("eventA", function (eventName, number) {
-        console.log("listener2 for " + eventName + ", stops propagation at position " + this.position + " and index " + this.index);
+        console.log("listener2");
         this.stopPropagation = true;
     }, 2);
 
 
-    o.trigger('eventA', 42);
+    o.trigger('eventA', 42); // listener1a listener1b listener2
+    o.off('eventA', 2); // removing listener2
+    o.trigger('eventA', 42);  // listener1a listener1b listener3
+    
+    o.off('eventA', 1, fn); // removing listener1b
+    o.trigger('eventA', 42);  // listener1a listener3
+    
+    
 
 
 </script>
@@ -134,11 +168,74 @@ Note: it uses ECMAscript 6.
 
 
 
+Simple dispatcher with dotted event name
+----------------------------
+
+If you are lazy and you don't like to pass the function reference to an off method, then this dispatcher might be the one you are looking for.
+
+The code and documentation (in comments) is here: https://github.com/lingtalfi/jsdispatchers/blob/master/simple_dispatcher_dot.js
+
+Here is how to use it.
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Html page</title>
+    <script src="main.js"></script>
+</head>
+
+<body>
+
+
+<script>
+
+
+    var o = new window.myObject();
+
+
+    o.on('myEvent', function (firstParam) {
+        console.log("doing something with " + firstParam);
+    });
+    o.on('myEvent.id', function (firstParam) {
+        console.log("doing something else with " + firstParam);
+    });
+    o.on('myEvent2', function () {
+        console.log("Kamehameha!");
+    });
+
+    o.trigger('myEvent', 42);
+    o.trigger('myEvent2');
+
+    console.log("removing function 2 listener");
+    o.off('myEvent.id'); // notice: we don't need a reference to the function, that's the whole point of the dotted event name
+    o.trigger('myEvent', 42);
+
+</script>
+
+
+</body>
+</html>
+```
+
+
+
+
+
+
+
 
 
 History Log
 ------------------
     
+- 1.2.0 -- 2016-03-18
+
+    - add simple dispatcher dot
+    - add off method to simple dispatcher
+    - add off method to stop propagation dispatcher
+
 - 1.1.0 -- 2016-03-17
 
     - add simple dispatcher
