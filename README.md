@@ -12,7 +12,7 @@ Just browse the example and copy paste adapt them.
 Simple Dispatcher
 ------------------
 
-The source is here: https://github.com/lingtalfi/jsdispatchers/blob/master/simple_dispatcher.js
+The simple dispatcher script is here: https://github.com/lingtalfi/jsdispatchers/blob/master/simple_dispatcher.js
 
 Note: it uses ECMAscript 6.
 
@@ -25,74 +25,43 @@ The source and example is below:
 <head>
     <meta charset="utf-8"/>
     <title>Html page</title>
+    <script src="simple_dispatcher.js"></script>
 </head>
 
 <body>
 
 
 <script>
-    
-    var myObject = function(){
-        this.listeners = {};
+
+
+    var o = new window.myObject();
+
+
+    var fn2 = function(firstParam){
+        console.log("fn2");
     };
+
+    o.on('myEvent', function(firstParam){
+        console.log("fn1");
+    });
+    o.on('myEvent', fn2);
+    o.on('myEvent2', function(){
+        console.log("event2Fn");
+    });
+
+    o.trigger('myEvent', 42); // fn1 fn2
+    o.trigger('myEvent2'); // event2Fn
+
+    console.log("removing function 2 listener");
+    o.off('myEvent', fn2);
+    o.trigger('myEvent', 42); // fn1
     
-    myObject.prototype = {
-    on: function (eventName, fn) {
-        if (false === (eventName in this.listeners)) {
-            this.listeners[eventName] = [];
-        }
-        this.listeners[eventName].push(fn);
-        return this;
-    },
-    off: function (eventName, fn) {
-        for (var i in this.listeners) {
-            for (var j in this.listeners[i]) {
-                if (this.listeners[i][j] === fn) {
-                    this.listeners[i].splice(j, 1);
-                }
-            }
-        }
-    },
-    trigger: function (eventName, ...args) {
-        if (eventName in this.listeners) {
-            for (var i in this.listeners[eventName]) {
-                this.listeners[eventName][i].call(this, ...args);
-            }
-        }
-    },
-    };
-    
-    
-        var o = new window.myObject();
-        
-        
-        var fn2 = function(firstParam){
-            console.log("doing something else with " + firstParam);
-        };
-        
-        o.on('myEvent', function(firstParam){
-            console.log("doing something with " + firstParam);
-        });
-        o.on('myEvent', fn2);
-        o.on('myEvent2', function(){
-            console.log("Kamehameha!");
-        });
-    
-        o.trigger('myEvent', 42);
-        o.trigger('myEvent2');    
-        
-        console.log("removing function 2 listener");
-        o.off('myEvent', fn2);
-        o.trigger('myEvent', 42);
-    
-    
-    
-    o.trigger('myEvent', 42);
-    o.trigger('myEvent2');
-    
-    
-    
-    
+
+    o.trigger('myEvent2'); // event2Fn
+
+
+
+
 </script>
 
 
@@ -130,17 +99,22 @@ Note: it uses ECMAscript 6.
 
 
     var o = new myObject();
-    
-    
+
+
     var fn = function (eventName, number) {
         console.log("listener1b");
     };
-    
+
+    o.once("eventA", function (eventName, number) {
+        console.log("listeneronce");
+    }, 1);
+
+
     o.on("eventA", function (eventName, number) {
         console.log("listener1a");
     }, 1);
     o.on("eventA", fn, 1);
-    
+
     o.on("eventA", function (eventName, number) {
         console.log("listener3");
     }, 3);
@@ -150,14 +124,12 @@ Note: it uses ECMAscript 6.
     }, 2);
 
 
-    o.trigger('eventA', 42); // listener1a listener1b listener2
+    o.trigger('eventA', 42); // listeneronce listener1a listener1b listener2
     o.off('eventA', 2); // removing listener2
     o.trigger('eventA', 42);  // listener1a listener1b listener3
-    
+
     o.off('eventA', 1, fn); // removing listener1b
     o.trigger('eventA', 42);  // listener1a listener3
-    
-    
 
 
 </script>
@@ -230,6 +202,12 @@ Here is how to use it.
 History Log
 ------------------
     
+- 1.3.0 -- 2016-03-19
+
+    - fix off method of stop propagation dispatcher
+    - fix off method of simple dispatcher
+    - add once method to stop propagation dispatcher
+
 - 1.2.0 -- 2016-03-18
 
     - add simple dispatcher dot

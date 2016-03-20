@@ -4,29 +4,39 @@
  */
 window.myObject = function () {
     this.listeners = {};
+    this.listenerIndex = 0;
 };
 myObject.prototype = {
     on: function (eventName, fn, position = 0) {
         if (false === (eventName in this.listeners)) {
-            this.listeners[eventName] = [];
+            this.listeners[eventName] = {};
         }
 
         if (false === (position in this.listeners[eventName])) {
-            this.listeners[eventName][position] = [];
+            this.listeners[eventName][position] = {};
         }
-        this.listeners[eventName][position].push(fn);
+        this.listeners[eventName][position][this.listenerIndex++] = fn;
+        return this;
+    },
+    once: function (eventName, fn, position = 0) {
+        var zis = this;
+        var _fn = function () {
+            fn();
+            zis.off(eventName, position, _fn);
+        };
+        this.on(eventName, _fn, position);
         return this;
     },
     off: function (eventName, position, fn = '') {
         if (eventName in this.listeners) {
             if (position in this.listeners[eventName]) {
                 if ('' === fn) {
-                    this.listeners[eventName].splice(position, 1);
+                    delete this.listeners[eventName][position];
                 }
                 else {
                     for (var i in this.listeners[eventName][position]) {
                         if (fn === this.listeners[eventName][position][i]) {
-                            this.listeners[eventName][position].splice(i, 1);
+                            delete this.listeners[eventName][position][i];
                         }
                     }
                 }
