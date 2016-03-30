@@ -52,7 +52,7 @@ myObject.prototype = {
                         position: pos,
                         index: i,
                     };
-                    this.listeners[eventName][pos][i].call(info, eventName, ...args);
+                    this.listeners[eventName][pos][i].call(info, ...args);
                     if (true === info.stopPropagation) {
                         return;
                     }

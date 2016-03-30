@@ -101,24 +101,24 @@ Note: it uses ECMAscript 6.
     var o = new myObject();
 
 
-    var fn = function (eventName, number) {
+    var fn = function (number) {
         console.log("listener1b");
     };
 
-    o.once("eventA", function (eventName, number) {
+    o.once("eventA", function (number) {
         console.log("listeneronce");
     }, 1);
 
 
-    o.on("eventA", function (eventName, number) {
+    o.on("eventA", function (number) {
         console.log("listener1a");
     }, 1);
     o.on("eventA", fn, 1);
 
-    o.on("eventA", function (eventName, number) {
+    o.on("eventA", function (number) {
         console.log("listener3");
     }, 3);
-    o.on("eventA", function (eventName, number) {
+    o.on("eventA", function (number) {
         console.log("listener2");
         this.stopPropagation = true;
     }, 2);
@@ -202,6 +202,11 @@ Here is how to use it.
 History Log
 ------------------
     
+- 1.4.0 -- 2016-03-26
+    
+    - removed the first argument eventName from listeners in dispatcher_propagation_position
+
+
 - 1.3.0 -- 2016-03-19
 
     - fix off method of stop propagation dispatcher
