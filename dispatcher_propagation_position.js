@@ -1,6 +1,8 @@
 /**
  * Dispatcher with positioning and stop propagation.
  * Integration in an existing host object.
+ * 
+ * https://github.com/lingtalfi/jsdispatchers/blob/master/dispatcher_propagation_position.js
  */
 window.myObject = function () {
     this.listeners = {};
